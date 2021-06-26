@@ -59,11 +59,13 @@ while 1:
                     "limit": "1"
                 }
                 print(vars(event))
+                print(gif_url)
+                print(params)
                 data = get(gif_url, params=params).json()
                 print(data)
-                gif_url = data["data"][0]["images"]["fixed_height"]["url"]
+                gif = data["data"][0]["images"]["fixed_height"]["url"]
                 with open('test.gif', 'wb') as file:
-                    file.write(get(gif_url).content)
+                    file.write(get(gif).content)
                 '''upload_url = vk.photos.getUploadServer(group_id=205470982, album_id=279908245, v=5.95)["upload_url"]
                 post_r = post(upload_url, files={"file": open("test.gif", "rb")}).json()
                 print(post_r)

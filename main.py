@@ -1,6 +1,5 @@
 from requests import get, post
 import os
-import sqlalchemy
 from data import db_session
 from data.gifs import Gif
 from data.users import User
@@ -50,7 +49,6 @@ def load_image(file):
     attachment = f'photo{owner_id}_{photo_id}_{access_key}'
     return attachment
 
-
 db_session.global_init()
 gif_url = "http://api.giphy.com/v1/gifs/search"
 me_in_chat, me = None, None
@@ -95,6 +93,7 @@ while 1:
                                          message="Количество обращений к сайту превышено, поиск будет из сохраненных гифок")
                 for gif_file in data["data"]:
                     gif = gif_file["images"]["fixed_height"]["url"]
+                    print("gif", gif)
                     with open(f"static/img/{gif_file['id']}.gif", 'wb') as file:
                         file.write(get(gif).content)
                     '''upload_url = vk.photos.getUploadServer(group_id=205470982, album_id=279908245, v=5.95)["upload_url"]

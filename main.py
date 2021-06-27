@@ -68,15 +68,15 @@ while 1:
             print(response)
             if response[0]['id'] not in users.keys():
                 vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
-                                     message=f"Привет {response[0]['first_name']}. Я чат бот для сайта http://weblearn-project.herokuapp.com/weblearn",
+                                     message=f"Привет {response[0]['first_name']}. Я гиф чат бот",
                                      attachment="https://vk.com/album-205470982_279908245?z=photo-205470982_457239024%2Falbum-205470982_279908245")
                 db_sess = db_session.create_session()
-                user_db = User(id=int(response[0]['id']), TOKEN="")
+                user_db = User(id=int(response[0]['id']), token="a")
                 db_sess.add(user_db)
                 db_sess.commit()
             elif datetime.datetime.now() - users[response[0]['id']] > datetime.timedelta(hours=2):
                 vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
-                                     message=f"С возвращением {response[0]['first_name']}. Хочешь перейти на сайта http://weblearn-project.herokuapp.com/weblearn?",
+                                     message=f"С возвращением {response[0]['first_name']}",
                                      attachment="https://vk.com/album-205470982_279908245?z=photo-205470982_457239024%2Falbum-205470982_279908245")
             users[response[0]['id']] = datetime.datetime.now()
             print(users)

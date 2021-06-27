@@ -1,3 +1,6 @@
 vk_api
 fuzzywuzzy
 requests
+sqlalchemy
+flask_login
+sqlalchemy_serializer

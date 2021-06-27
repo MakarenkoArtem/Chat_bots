@@ -1,4 +1,5 @@
 from requests import get, post
+import os
 
 try:
     import vk_api
@@ -19,6 +20,11 @@ except ModuleNotFoundError:
     from fuzzywuzzy import fuzz, process
 from config import *
 
+if 'HEROKU' in os.environ:
+    TOKEN = os.environ.get("TOKEN", TOKEN)
+    VK_LOGIN = os.environ.get("VK_LOGIN", VK_LOGIN)
+    VK_PASSWORD = os.environ.get("VK_PASSWORD", VK_PASSWORD)
+    GIF_TOKEN = os.environ.get("GIF_TOKEN", GIF_TOKEN)
 login, password = VK_LOGIN, VK_PASSWORD
 vk_session_bot = vk_api.VkApi(token=TOKEN)
 vk_session = vk_api.VkApi(login, password, app_id=2685278)
@@ -32,19 +38,21 @@ gif_url = "http://api.giphy.com/v1/gifs/search"
 me_in_chat, me = None, None
 while 1:
     for event in longpoll.check():
-        print(event.from_chat, event.to_me, event.type == VkEventType.MESSAGE_NEW, event.type == VkEventType.MESSAGE_EDIT)
+        print(event.from_chat, event.to_me, event.type == VkEventType.MESSAGE_NEW,
+              event.type == VkEventType.MESSAGE_EDIT)
         if event.from_chat and event.to_me and (
-                event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(event.text):
+                event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(
+            event.text):
             if event.text[0] != ",":
                 lang = "ru"
                 if 64 < ord(event.text[0]) < 123:
                     lang = "en"
                 params = {"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "lang": lang}
-                #print(vars(event))
-                #print(gif_url)
-                #print(params)
+                # print(vars(event))
+                # print(gif_url)
+                # print(params)
                 data = get(gif_url, params=params).json()
-                #print(data)
+                # print(data)
                 for gif_file in data["data"]:
                     print(gif_file)
                     gif = gif_file["images"]["fixed_height"]["url"]
@@ -59,12 +67,13 @@ while 1:
                     print(saved_photo)'''
                     upload_url = vk.docs.getUploadServer(group_id=205470982, v=5.95)["upload_url"]
                     post_r = post(upload_url, files={"file": open("test.gif", "rb")}).json()
-                    #print(post_r)
+                    # print(post_r)
                     save = vk.docs.save(v=5.95, file=post_r['file'])
-                    #print(save)
-                    saved_gif = "https://vk.com/doc" + str(save["doc"]['owner_id']) + "_" + str(save["doc"]['id'])
-                    #saved_gif = "https://vk.com/doc-205470982_606197486"
-                    #print(saved_gif)
+                    # print(save)
+                    saved_gif = "https://vk.com/doc" + str(save["doc"]['owner_id']) + "_" + str(
+                        save["doc"]['id'])
+                    # saved_gif = "https://vk.com/doc-205470982_606197486"
+                    # print(saved_gif)
                     vk_bot.messages.send(chat_id=event.chat_id, message=saved_gif,
                                          random_id=random.randint(0, 1000))
 

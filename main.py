@@ -18,13 +18,14 @@ except ModuleNotFoundError:
 
     pip.main(["install", "fuzzywuzzy"])
     from fuzzywuzzy import fuzz, process
-from config import *
 
 if 'HEROKU' in os.environ:
-    TOKEN = os.environ.get("TOKEN", TOKEN)
-    VK_LOGIN = os.environ.get("VK_LOGIN", VK_LOGIN)
-    VK_PASSWORD = os.environ.get("VK_PASSWORD", VK_PASSWORD)
-    GIF_TOKEN = os.environ.get("GIF_TOKEN", GIF_TOKEN)
+    TOKEN = os.environ.get("TOKEN", None)
+    VK_LOGIN = os.environ.get("VK_LOGIN", None)
+    VK_PASSWORD = os.environ.get("VK_PASSWORD", None)
+    GIF_TOKEN = os.environ.get("GIF_TOKEN", None)
+else:
+    from config import *
 login, password = VK_LOGIN, VK_PASSWORD
 vk_session_bot = vk_api.VkApi(token=TOKEN)
 vk_session = vk_api.VkApi(login, password, app_id=2685278)

@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 
     pip.main(["install", "fuzzywuzzy"])
     from fuzzywuzzy import fuzz, process
-print(vars(os.environ))
+
 if 'HEROKU' in os.environ:
     TOKEN = os.environ.get("TOKEN", None)
     VK_LOGIN = os.environ.get("VK_LOGIN", None)

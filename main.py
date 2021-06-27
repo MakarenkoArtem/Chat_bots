@@ -52,17 +52,19 @@ while 1:
     for event in longpoll.check():
         if event.from_chat and not event.from_me and (
                 event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT):
+            print(vars(event))
+            print(event.from_chat, event.from_me, event.type == VkEventType.MESSAGE_NEW, event.type == VkEventType.MESSAGE_EDIT)
             if event.text[0] != ",":
                 params = {
                     "api_key": GIF_TOKEN,
                     "q": event.text,
                     "limit": "1"
                 }
-                print(vars(event))
-                print(gif_url)
-                print(params)
+                #print(vars(event))
+                #print(gif_url)
+                #print(params)
                 data = get(gif_url, params=params).json()
-                print(data)
+                #print(data)
                 gif = data["data"][0]["images"]["fixed_height"]["url"]
                 with open('test.gif', 'wb') as file:
                     file.write(get(gif).content)
@@ -75,9 +77,9 @@ while 1:
                 print(saved_photo)'''
                 upload_url = vk.docs.getUploadServer(group_id=205470982, v=5.95)["upload_url"]
                 post_r = post(upload_url, files={"file": open("test.gif", "rb")}).json()
-                print(post_r)
+                #print(post_r)
                 save = vk.docs.save(v=5.95, file=post_r['file'])
-                print(save)
+                #print(save)
                 saved_gif = "https://vk.com/doc" + str(save["doc"]['owner_id']) + "_" + str(save["doc"]['id'])
                 print(saved_gif)
                 vk_bot.messages.send(chat_id=event.chat_id, message=saved_gif,

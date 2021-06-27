@@ -89,7 +89,7 @@ while 1:
                     text_en = event.text
                 params = {"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "lang": lang}
                 data = get(gif_url, params=params).json()
-                print(data)
+                # print(data)
                 if data["meta"]["status"] == 429:
                     vk_bot.messages.send(chat_id=event.chat_id, random_id=random.randint(0, 1000),
                                          message="Количество обращений к сайту превышено, поиск будет из сохраненных гифок")
@@ -107,7 +107,7 @@ while 1:
                     upload_url = vk.docs.getUploadServer(group_id=205470982, v=5.95)["upload_url"]
                     post_r = post(upload_url,
                                   files={"file": open(f"static/img/{gif_file['id']}.gif", "rb")}).json()
-                    # print(post_r)
+                    print(post_r)
                     save = vk.docs.save(v=5.95, file=post_r['file'])
                     # print(save)
                     saved_gif = "https://vk.com/doc" + str(save["doc"]['owner_id']) + "_" + str(

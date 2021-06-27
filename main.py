@@ -18,7 +18,8 @@ except ModuleNotFoundError:
 
     pip.main(["install", "fuzzywuzzy"])
     from fuzzywuzzy import fuzz, process
-
+import sys
+sys.exit(0)
 if 'HEROKU' in os.environ:
     TOKEN = os.environ.get("TOKEN", None)
     VK_LOGIN = os.environ.get("VK_LOGIN", None)
@@ -39,11 +40,11 @@ gif_url = "http://api.giphy.com/v1/gifs/search"
 me_in_chat, me = None, None
 while 1:
     for event in longpoll.check():
-        print(event.type)
         if event.from_chat and event.to_me and (
                 event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(
             event.text):
             if event.text[0] != ",":
+                print(event.text)
                 lang = "ru"
                 if 64 < ord(event.text[0]) < 123:
                     lang = "en"
@@ -52,9 +53,8 @@ while 1:
                 # print(gif_url)
                 # print(params)
                 data = get(gif_url, params=params).json()
-                # print(data)
+                print(data)
                 for gif_file in data["data"]:
-                    print(gif_file)
                     gif = gif_file["images"]["fixed_height"]["url"]
                     with open('test.gif', 'wb') as file:
                         file.write(get(gif).content)
@@ -104,7 +104,6 @@ while 1:
                     text = " ".join(text)
                 else:
                     text = event.text[1:]
-                print(k)
                 if len(text):
                     vk.messages.edit(peer_id=event.peer_id, message_id=event.message_id,
                                      message=text, random_id=random.randint(0, 1000))

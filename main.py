@@ -90,18 +90,21 @@ while 1:
                 k = get(
                     f"https://speller.yandex.net/services/spellservice.json/checkText?text={'+'.join(event.text[1:].split())}").json()
                 i = 0
-                for word in event.text[1:].split():
-                    if len(k) and k[i]["word"] in word:
-                        c = 0
-                        while len(word) >= c + len(k[i]["word"]):
-                            if word[c:c + len(k[i]["word"])] == k[i]["word"]:
-                                text.append(word[:c] + k[i]["s"][0] + word[c + len(k[i]["word"]):])
-                                i += 1
-                                break
-                    else:
-                        text.append(word)
+                if len(k):
+                    for word in event.text[1:].split():
+                        if k[i]["word"] in word:
+                            c = 0
+                            while len(word) >= c + len(k[i]["word"]):
+                                if word[c:c + len(k[i]["word"])] == k[i]["word"]:
+                                    text.append(word[:c] + k[i]["s"][0] + word[c + len(k[i]["word"]):])
+                                    i += 1
+                                    break
+                        else:
+                            text.append(word)
+                    text = " ".join(text)
+                else:
+                    text = event.text[1:]
                 print(k)
-                text = " ".join(text)
                 if len(text):
                     vk.messages.edit(peer_id=event.peer_id, message_id=event.message_id,
                                      message=text, random_id=random.randint(0, 1000))

@@ -4,3 +4,4 @@ requests
 sqlalchemy
 flask_login
 sqlalchemy_serializer
+psycopg2

@@ -127,8 +127,9 @@ def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru):
     try:
         count = int(text.split()[-1])
     except ValueError:
-        count = 1
-    while count:
+        count = 3
+    i = count
+    while count and i:
         print(text, count)
         params["limit"] = str(count)
         data = get("http://api.giphy.com/v1/gifs/search", params=params).json()
@@ -143,6 +144,7 @@ def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru):
             if not count:
                 return
         params["offset"] = random.randint(0, 1000)
+        i -= 1
 
 
 def new_mess(event, vk, vk_bot, db_session):

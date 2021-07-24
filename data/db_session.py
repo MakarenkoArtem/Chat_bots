@@ -18,7 +18,7 @@ def global_init():
     if 'DATABASE_URL' in os.environ:
         conn_str = os.environ['DATABASE_URL'].replace('postgres://', 'postgresql://')  # сработает на Heroku
     else:
-        from config import LOCAL_DB, DB  # сработает локально
+        from config import LOCAL_DB #, DB  # сработает локально
         conn_str = LOCAL_DB
         #conn_str = DB.replace('postgres://', 'postgresql://')
     print(conn_str)

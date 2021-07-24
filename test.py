@@ -1,4 +1,12 @@
-from requests import get
+a = int(input())
+s = str(a)
+a = int(input())
+while a:
+    s += "_" + str(a)
+    a = int(input())
+
+print(s)
+'''from requests import get
 import json
 
 gif_url = "http://api.giphy.com/v1/gifs/search/"
@@ -11,8 +19,8 @@ params = {
 data = get(url, params=params).json()
 
 print(json.dumps(data, sort_keys=True, indent=4))
-#k = get("https://speller.yandex.net/services/spellservice.json/checkText?text=синхрафазатрон+в+дубн").json()
-#print(k)
+# k = get("https://speller.yandex.net/services/spellservice.json/checkText?text=синхрафазатрон+в+дубн").json()
+# print(k)
 {'head': {}, 'def': [{'text': 'естественно', 'pos': 'adverb', 'tr': [
     {'text': 'разумеется', 'pos': 'parenthetic', 'fr': 1, 'syn': [{'text': 'вестимо', 'pos': 'parenthetic', 'fr': 1}]},
     {'text': 'конечно', 'pos': 'adverb', 'fr': 1,
@@ -40,13 +48,6 @@ print(json.dumps(data, sort_keys=True, indent=4))
     {'text': 'непосредственно', 'pos': 'adverb', 'fr': 1, 'syn': [{'text': 'элементарно', 'pos': 'adverb', 'fr': 1}]},
     {'text': 'природно', 'pos': 'noun', 'fr': 1}, {'text': 'без всякого сомнения', 'pos': 'adverb', 'fr': 1,
                                                    'syn': [{'text': 'вне сомнения', 'pos': 'adverb', 'fr': 1}]}]}]}
-
-
-
-
-
-
-
 
 {
     "data": [
@@ -257,3 +258,4 @@ print(json.dumps(data, sort_keys=True, indent=4))
         "total_count": 667
     }
 }
+'''

@@ -55,16 +55,6 @@ longpoll = VkLongPoll(vk_session_bot, wait=1)
 longpoll_my = VkLongPoll(vk_session, wait=1)
 
 
-def load_image(file):
-    upload = vk_api.VkUpload(vk_bot)
-    photo = upload.photo_messages(file)
-    owner_id = photo[0]['owner_id']
-    photo_id = photo[0]['id']
-    access_key = photo[0]['access_key']
-    attachment = f'photo{owner_id}_{photo_id}_{access_key}'
-    return attachment
-
-
 def traslater(text):
     api = 'dict.1.1.20210625T163032Z.8ae5e3c147239b47.a46d4abe26b7190787e913b265d869a7c49f5069'
     if 64 < ord(text[0]) < 123:
@@ -104,6 +94,7 @@ def load_gif(file, vk, db_session, text_en, text_ru=""):
     db_sess.add(gif_db)
     db_sess.commit()
     os.remove(f"static/img/{file['id']}.gif")
+    print(f"static/img/{file['id']}.gif")
     return saved_gif
 
 
@@ -134,9 +125,10 @@ def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, 
         count = int(text.split()[-1])
     except ValueError:
         count = 3
+    i = 2 * count
     start = datetime.datetime.now()
     while count and datetime.datetime.now() - start <= time:
-        print(2.2, event.text)
+        print(2.2, text)
         params["limit"] = str(count)
         data = get("http://api.giphy.com/v1/gifs/search", params=params).json()
         if data["meta"]["status"] == 429:
@@ -162,17 +154,16 @@ def new_mess(event, vk, vk_bot, db_session):
     print(1, event.text)
     users = {}
     db_sess = db_session.create_session()
-    for user in db_sess.query(User).all():
-        users[user.id] = datetime.datetime.now() - datetime.timedelta(hours=3)
-    db_sess.commit()
     response = vk_bot.users.get(user_id=event.user_id)
     print(response)
     try:
-        db_sess.query(User).filter(User.id == event.user_id).one()
-        if datetime.datetime.now() - users[response[0]['id']] > datetime.timedelta(hours=2):
+        print(event.user_id)
+        user = db_sess.query(User).filter(User.id == event.user_id).one()
+        if datetime.datetime.now() - user.modified_date > datetime.timedelta(hours=2):
             vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
                                  message=f"С возвращением {response[0]['first_name']}",
                                  attachment="https://vk.com/album-205470982_279908245?z=photo-205470982_457239024%2Falbum-205470982_279908245")
+        user.modified_date = datetime.datetime.now()
     except sqlalchemy.exc.NoResultFound:
         vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
                              message=f"Привет {response[0]['first_name']}. Я гиф чат бот",
@@ -194,11 +185,9 @@ def new_mess(event, vk, vk_bot, db_session):
                                "lang": lang[:2]}, text=event.text, db_session=db_session, chat_id=event.chat_id,
                        text_en=text_en, text_ru=text_ru, vk=vk, vk_bot=vk_bot)
     print(3, event.text)
+
+
 def rewrite(event):
-    if event.from_chat:
-        me_in_chat = event.user_id
-    else:
-        me = event.user_id
     if event.text[0] == ",":
         text = []
         k = get(
@@ -222,23 +211,23 @@ def rewrite(event):
         if len(text):
             vk.messages.edit(peer_id=event.peer_id, message_id=event.message_id,
                              message=text, random_id=random.randint(0, 1000))
-        print("."*100)
+
 
 db_session.global_init()
 me_in_chat, me = None, None
 
 while 1:
     for event in longpoll.check():
-        if event.from_chat and event.to_me and (
+        if event.from_chat and event.to_me and not event.from_me and (
                 event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(event.text):
             # new_mess(event, vk, vk_bot, db_session)
-            #t = Thread(target=new_mess(event, vk, vk_bot, db_session))
-            t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, ))
+            # t = Thread(target=new_mess(event, vk, vk_bot, db_session))
+            t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session,))
             t.start()
             # t.join()
 
     for event in longpoll_my.check():
         if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (event.type == VkEventType.MESSAGE_EDIT and (
                 event.user_id == me or (event.from_chat and event.user_id == me_in_chat))):
-            t = Thread(target=rewrite, args=(event, ))
+            t = Thread(target=rewrite, args=(event,))
             t.start()

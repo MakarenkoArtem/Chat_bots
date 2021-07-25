@@ -69,12 +69,12 @@ def traslater(text):
     api = 'dict.1.1.20210625T163032Z.8ae5e3c147239b47.a46d4abe26b7190787e913b265d869a7c49f5069'
     if 64 < ord(text[0]) < 123:
         lang = "en-ru"
-        text_en = event.text
+        text_en = text
     else:
         lang = "ru-en"
-        text_ru = event.text
+        text_ru = text
     a = []
-    for word in event.text.split():
+    for word in text.split():
         k = get(
             f"https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key={api}&ui=ru&lang={lang}&text={word}").json()
         k = k['def']
@@ -107,30 +107,36 @@ def load_gif(file, vk, db_session, text_en, text_ru=""):
     return saved_gif
 
 
-def random_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru):
+def random_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, time=datetime.timedelta(seconds=45)):
     try:
         count = int(text.split()[-1])
     except ValueError:
-        count = 1
-    while count:
+        count = 3
+    start = datetime.datetime.now()
+    while count and datetime.datetime.now() - start <= time:
+        print(2.1, event.text)
         data = get("http://api.giphy.com/v1/gifs/random", params=params).json()
         if data["meta"]["status"] == 429:
             vk_bot.messages.send(chat_id=event.chat_id, random_id=random.randint(0, 1000),
                                  message="Количество обращений к сайту превышено, поиск будет из сохраненных гифок")
             return
-        saved_gif = load_gif(data["data"], vk, db_session, text_en, text_ru)
+        db_sess = db_session.create_session()
+        try:
+            saved_gif = db_sess.query(Gif).filter(Gif.id == data["data"]['id']).one().link
+        except sqlalchemy.exc.NoResultFound:
+            saved_gif = load_gif(data["data"], vk, db_session, text_en, text_ru)
         vk_bot.messages.send(chat_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
         count -= 1
 
 
-def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru):
+def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, time=datetime.timedelta(seconds=45)):
     try:
         count = int(text.split()[-1])
     except ValueError:
         count = 3
-    i = count
-    while count and i:
-        print(text, count)
+    start = datetime.datetime.now()
+    while count and datetime.datetime.now() - start <= time:
+        print(2.2, event.text)
         params["limit"] = str(count)
         data = get("http://api.giphy.com/v1/gifs/search", params=params).json()
         if data["meta"]["status"] == 429:
@@ -138,16 +144,22 @@ def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru):
                                  message="Количество обращений к сайту превышено, поиск будет из сохраненных гифок")
             return
         for gif in data["data"]:
-            saved_gif = load_gif(gif, vk, db_session, text_en, text_ru)
+            db_sess = db_session.create_session()
+            try:
+                saved_gif = db_sess.query(Gif).filter(Gif.id == gif['id']).one().link
+            except sqlalchemy.exc.NoResultFound:
+                saved_gif = load_gif(gif, vk, db_session, text_en, text_ru)
             vk_bot.messages.send(chat_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
             count -= 1
             if not count:
                 return
-        params["offset"] = random.randint(0, 1000)
+        params["offset"] = random.randint(0, 100)
+        params["limit"] = count
         i -= 1
 
 
 def new_mess(event, vk, vk_bot, db_session):
+    print(1, event.text)
     users = {}
     db_sess = db_session.create_session()
     for user in db_sess.query(User).all():
@@ -174,15 +186,43 @@ def new_mess(event, vk, vk_bot, db_session):
     print(users)
     if event.text[0] != ",":
         text_ru, text_en, lang = traslater(event.text.split(" _ ")[0])
-        if "random" in event.text.split(" _ ")[1].split():
+        if len(event.text.split(" _ ")) > 1 and "random" in event.text.split(" _ ")[1].split():
             random_gif(params={"api_key": GIF_TOKEN, "tag": event.text.split(" _ ")[0]}, text=event.text, vk_bot=vk_bot,
                        db_session=db_session, chat_id=event.chat_id, text_en=text_en, text_ru=text_ru, vk=vk)
         else:
-            print('search')
             search_gif(params={"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "offset": random.randint(0, 10),
                                "lang": lang[:2]}, text=event.text, db_session=db_session, chat_id=event.chat_id,
                        text_en=text_en, text_ru=text_ru, vk=vk, vk_bot=vk_bot)
-
+    print(3, event.text)
+def rewrite(event):
+    if event.from_chat:
+        me_in_chat = event.user_id
+    else:
+        me = event.user_id
+    if event.text[0] == ",":
+        text = []
+        k = get(
+            f"https://speller.yandex.net/services/spellservice.json/checkText?text={'+'.join(event.text[1:].split())}").json()
+        i = 0
+        if len(k):
+            for word in event.text[1:].split():
+                if k[i]["word"] in word:
+                    c = 0
+                    while len(word) >= c + len(k[i]["word"]):
+                        if word[c:c + len(k[i]["word"])] == k[i]["word"]:
+                            text.append(
+                                word[:c] + k[i]["s"][0] + word[c + len(k[i]["word"]):])
+                            i += 1
+                            break
+                else:
+                    text.append(word)
+            text = " ".join(text)
+        else:
+            text = event.text[1:]
+        if len(text):
+            vk.messages.edit(peer_id=event.peer_id, message_id=event.message_id,
+                             message=text, random_id=random.randint(0, 1000))
+        print("."*100)
 
 db_session.global_init()
 me_in_chat, me = None, None
@@ -191,40 +231,14 @@ while 1:
     for event in longpoll.check():
         if event.from_chat and event.to_me and (
                 event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(event.text):
-            #new_mess(event, vk, vk_bot, db_session)
-            t = Thread(target=new_mess(event, vk, vk_bot, db_session))
+            # new_mess(event, vk, vk_bot, db_session)
+            #t = Thread(target=new_mess(event, vk, vk_bot, db_session))
+            t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, ))
             t.start()
-            t.join()
-
+            # t.join()
 
     for event in longpoll_my.check():
-        if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (
-                event.type == VkEventType.MESSAGE_EDIT and (
+        if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (event.type == VkEventType.MESSAGE_EDIT and (
                 event.user_id == me or (event.from_chat and event.user_id == me_in_chat))):
-            if event.from_chat:
-                me_in_chat = event.user_id
-            else:
-                me = event.user_id
-            if event.text[0] == ",":
-                text = []
-                k = get(
-                    f"https://speller.yandex.net/services/spellservice.json/checkText?text={'+'.join(event.text[1:].split())}").json()
-                i = 0
-                if len(k):
-                    for word in event.text[1:].split():
-                        if k[i]["word"] in word:
-                            c = 0
-                            while len(word) >= c + len(k[i]["word"]):
-                                if word[c:c + len(k[i]["word"])] == k[i]["word"]:
-                                    text.append(
-                                        word[:c] + k[i]["s"][0] + word[c + len(k[i]["word"]):])
-                                    i += 1
-                                    break
-                        else:
-                            text.append(word)
-                    text = " ".join(text)
-                else:
-                    text = event.text[1:]
-                if len(text):
-                    vk.messages.edit(peer_id=event.peer_id, message_id=event.message_id,
-                                     message=text, random_id=random.randint(0, 1000))
+            t = Thread(target=rewrite, args=(event, ))
+            t.start()

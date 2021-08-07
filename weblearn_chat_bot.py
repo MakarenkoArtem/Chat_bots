@@ -29,20 +29,21 @@ def messages_send(peer_id, lesson):
     try:
         with open(f"static/img/weblearn/{lesson['id']}.png", 'wb') as file:
             file.write(bytes.fromhex(lesson['top_image']))
-        with open(f"static/img/weblearn/{lesson['id']}.png", 'rb') as file:
-            print_with_title(file.read())
+        #with open(f"static/img/weblearn/{lesson['id']}.png", 'rb') as file:
+        #    print_with_title(file.read())
         sleep(4)
         print_with_title(load_image(f"static/img/weblearn/{lesson['id']}.png"))
         print_with_title(lesson.keys())
         vk_bot.messages.send(peer_id=peer_id,
                              message=lesson['title'] + "\n" + "\n" + lesson[
                                  'text'] + "\n" + t + "\n" + f"http://{localhost}/lesson/{lesson['id']}",
-                             random_id=random.randint(0, 100), attachment=load_image(lesson['id'] + '.png'))
+                             random_id=random.randint(0, 100), attachment=load_image(f"static/img/weblearn/{lesson['id']}.png"))
     except KeyError:
         vk_bot.messages.send(peer_id=peer_id,
                              message=lesson['title'] + "\n" + "\n" + lesson[
                                  'text'] + "\n" + t + "\n" + f"http://{localhost}/lesson/{lesson['id']}",
                              random_id=random.randint(0, 100))
+    print_with_title(listdir())
     [remove(i) for i in listdir() if i.split(".")[0] == str(id) and i.split(".")[-1] == 'png']
 
 
@@ -80,7 +81,6 @@ def answer_mess(event):
                                      message=f"Сейчас: {datetime.datetime.now().strftime('%d-%B-%y %H:%M:%S %A')}",
                                      random_id=random.randint(0, 100))
             elif res[0] in command[:3]:
-                print_with_title(1)
                 if res[0] == command[0]:
                     try:
                         print_with_title(f'http://{localhost}/api/v1/lesson/{int(mes.split()[-1])}/j')
@@ -102,7 +102,7 @@ def answer_mess(event):
                     print_with_title(s['title'])
                     messages_send(event.peer_id, s)
                 except KeyError as e:
-                    print_with_title("!!!", e)
+                    print_with_title("!!!", e.__class__, e)
                     if res[0] == command[0]:
                         vk_bot.messages.send(peer_id=event.peer_id, message="Такой урок не найден",
                                              random_id=random.randint(0, 100))

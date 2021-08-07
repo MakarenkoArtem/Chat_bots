@@ -43,7 +43,7 @@ def main(vk, longpoll_my):
     me_in_chat, me = None, None
     for event in longpoll_my.listen():
         try:
-            print_with_title(vars(event))
+            #print_with_title(vars(event))
             if '"type":"audio_message"' in event.attachments[
                 'attachments'] and event.type == VkEventType.MESSAGE_NEW and event.to_me and not event.from_chat:
                 vk.messages.send(peer_id=event.peer_id, message="https://vk.com/video-205470982_456239017",

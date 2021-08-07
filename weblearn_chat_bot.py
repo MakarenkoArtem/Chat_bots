@@ -45,8 +45,8 @@ def messages_send(peer_id, lesson):
                                  'text'] + "\n" + t + "\n" + f"http://{localhost}/lesson/{lesson['id']}",
                              random_id=random.randint(0, 100))
     print_with_title(listdir("static/img/weblearn"))
-    [remove("static/img/weblearn/" + i) for i in listdir("static/img/weblearn") if
-     i.split(".")[0] != str(lesson['id']) and i.split(".")[-1] == 'png']
+    #[remove("static/img/weblearn/" + i) for i in listdir("static/img/weblearn") if
+    # i.split(".")[0] != str(lesson['id']) and i.split(".")[-1] == 'png']
 
 
 def answer_mess(event):

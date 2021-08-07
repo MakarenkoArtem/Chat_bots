@@ -9,7 +9,7 @@ def print_with_title(*args):
     print("rewrite:", " ".join([str(i) for i in args]))
 
 
-def rewrite(event):
+def rewrite(event, vk):
     if event.text[0] == ",":
         text = []
         k = get(
@@ -52,5 +52,5 @@ def main(vk, longpoll_my):
             pass#print_with_title("!!!", e.__class__, e)
         if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (event.type == VkEventType.MESSAGE_EDIT and (
                 event.user_id == me or (event.from_chat and event.user_id == me_in_chat))):
-            t = Thread(target=rewrite, args=(event,))
+            t = Thread(target=rewrite, args=(event, vk,))
             t.start()

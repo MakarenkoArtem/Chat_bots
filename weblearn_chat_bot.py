@@ -27,12 +27,12 @@ def messages_send(peer_id, lesson):
     global localhost
     t = "*" * 30
     try:
-        with open(lesson['id'] + '.png', 'wb') as file:
+        with open(f"static/img/weblearn/{lesson['id']}.png", 'wb') as file:
             file.write(bytes.fromhex(lesson['top_image']))
-        with open(lesson['id'] + '.png', 'rb') as file:
+        with open(f"static/img/weblearn/{lesson['id']}.png", 'rb') as file:
             print_with_title(file.read())
         sleep(4)
-        print_with_title(load_image(lesson['id'] + '.png'))
+        print_with_title(load_image(f"static/img/weblearn/{lesson['id']}.png"))
         print_with_title(lesson.keys())
         vk_bot.messages.send(peer_id=peer_id,
                              message=lesson['title'] + "\n" + "\n" + lesson[

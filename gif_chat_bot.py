@@ -42,18 +42,18 @@ def traslater(text):
 def load_gif(file, vk, db_session, text_en, text_ru=""):
     gif = file["images"]["fixed_height"]["url"]
     print_with_title("gif", gif)
-    with open(f"static/img/{file['id']}.gif", 'wb') as f:
+    with open(f"static/img/gif/{file['id']}.gif", 'wb') as f:
         f.write(get(gif).content)
     upload_url = vk.docs.getUploadServer(group_id=205470982, v=5.95)["upload_url"]
-    post_r = post(upload_url, files={"file": open(f"static/img/{file['id']}.gif", "rb")}).json()
+    post_r = post(upload_url, files={"file": open(f"static/img/gif/{file['id']}.gif", "rb")}).json()
     save = vk.docs.save(v=5.95, file=post_r['file'])
     saved_gif = "https://vk.com/doc" + str(save["doc"]['owner_id']) + "_" + str(save["doc"]['id'])
     db_sess = db_session.create_session()
     gif_db = Gif(id=file['id'], words_en=text_en, words_ru=text_ru, link=saved_gif)
     db_sess.add(gif_db)
     db_sess.commit()
-    os.remove(f"static/img/{file['id']}.gif")
-    print_with_title(f"static/img/{file['id']}.gif")
+    os.remove(f"static/img/gif/{file['id']}.gif")
+    print_with_title(f"static/img/gif/{file['id']}.gif")
     return saved_gif
 
 

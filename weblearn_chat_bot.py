@@ -31,7 +31,7 @@ def messages_send(peer_id, lesson):
             file.write(bytes.fromhex(lesson['top_image']))
         # with open(f"static/img/weblearn/{lesson['id']}.png", 'rb') as file:
         #    print_with_title(file.read())
-        #sleep(4)
+        # sleep(4)
         print_with_title(load_image(f"static/img/weblearn/{lesson['id']}.png"))
         print_with_title(lesson.keys())
         vk_bot.messages.send(peer_id=peer_id,
@@ -45,13 +45,14 @@ def messages_send(peer_id, lesson):
                                  'text'] + "\n" + t + "\n" + f"http://{localhost}/lesson/{lesson['id']}",
                              random_id=random.randint(0, 100))
     print_with_title(listdir("static/img/weblearn"))
-    [remove("static/img/weblearn/" + i) for i in listdir("static/img/weblearn") if i.split(".")[0] != str(lesson['id']) and i.split(".")[-1] == 'png']
+    [remove("static/img/weblearn/" + i) for i in listdir("static/img/weblearn") if
+     i.split(".")[0] != str(lesson['id']) and i.split(".")[-1] == 'png']
 
 
 def answer_mess(event):
     if event.type == VkEventType.MESSAGE_NEW and event.to_me:
         response = vk_bot.users.get(user_id=event.user_id)
-        #print_with_title(response)
+        # print_with_title(response)
         if response[0]['id'] not in users.keys():
             vk_bot.messages.send(peer_id=event.peer_id,
                                  message=f"Привет {response[0]['first_name']}! Я чат бот для сайта http://weblearn-project.herokuapp.com/weblearn",

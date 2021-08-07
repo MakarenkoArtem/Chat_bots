@@ -10,6 +10,10 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
 
+def print_with_title(*args):
+    print("gif:", " ".join([str(i) for i in args]))
+
+
 def traslater(text):
     api = 'dict.1.1.20210625T163032Z.8ae5e3c147239b47.a46d4abe26b7190787e913b265d869a7c49f5069'
     if 64 < ord(text[0]) < 123:
@@ -37,7 +41,7 @@ def traslater(text):
 
 def load_gif(file, vk, db_session, text_en, text_ru=""):
     gif = file["images"]["fixed_height"]["url"]
-    print("gif", gif)
+    print_with_title("gif", gif)
     with open(f"static/img/{file['id']}.gif", 'wb') as f:
         f.write(get(gif).content)
     upload_url = vk.docs.getUploadServer(group_id=205470982, v=5.95)["upload_url"]
@@ -49,7 +53,7 @@ def load_gif(file, vk, db_session, text_en, text_ru=""):
     db_sess.add(gif_db)
     db_sess.commit()
     os.remove(f"static/img/{file['id']}.gif")
-    print(f"static/img/{file['id']}.gif")
+    print_with_title(f"static/img/{file['id']}.gif")
     return saved_gif
 
 
@@ -60,7 +64,7 @@ def random_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, 
         count = 3
     start = datetime.datetime.now()
     while count and datetime.datetime.now() - start <= time:
-        print(2.1, event.text)
+        print_with_title(2.1, event.text)
         data = get("http://api.giphy.com/v1/gifs/random", params=params).json()
         if data["meta"]["status"] == 429:
             vk_bot.messages.send(chat_id=event.chat_id, random_id=random.randint(0, 1000),
@@ -83,7 +87,7 @@ def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, 
     i = 2 * count
     start = datetime.datetime.now()
     while count and datetime.datetime.now() - start <= time:
-        print(2.2, text)
+        print_with_title(2.2, text)
         params["limit"] = str(count)
         data = get("http://api.giphy.com/v1/gifs/search", params=params).json()
         if data["meta"]["status"] == 429:
@@ -106,13 +110,13 @@ def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, 
 
 
 def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
-    print(1, event.text)
+    print_with_title(1, event.text)
     users = {}
     db_sess = db_session.create_session()
     response = vk_bot.users.get(user_id=event.user_id)
-    print(response)
+    print_with_title(response)
     try:
-        print(event.user_id)
+        print_with_title(event.user_id)
         user = db_sess.query(User).filter(User.id == event.user_id).one()
         if datetime.datetime.now() - user.modified_date > datetime.timedelta(hours=2):
             vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
@@ -129,7 +133,7 @@ def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
         db_sess.add(user_db)
         db_sess.commit()
     users[response[0]['id']] = datetime.datetime.now()
-    print(users)
+    print_with_title(users)
     if event.text[0] != ",":
         text_ru, text_en, lang = traslater(event.text.split(" _ ")[0])
         if len(event.text.split(" _ ")) > 1 and "random" in event.text.split(" _ ")[1].split():
@@ -139,7 +143,7 @@ def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
             search_gif(params={"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "offset": random.randint(0, 10),
                                "lang": lang[:2]}, text=event.text, db_session=db_session, chat_id=event.chat_id,
                        text_en=text_en, text_ru=text_ru, vk=vk, vk_bot=vk_bot)
-    print(3, event.text)
+    print_with_title(3, event.text)
 
 
 def main(TOKEN, GIF_TOKEN, vk, db_session):

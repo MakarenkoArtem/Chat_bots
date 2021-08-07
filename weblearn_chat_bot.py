@@ -9,6 +9,10 @@ from os import remove, listdir
 from fuzzywuzzy import fuzz, process
 
 
+def print_with_title(*args):
+    print("weblearn:", " ".join([str(i) for i in args]))
+
+
 def load_image(file):
     upload = vk_api.VkUpload(vk_bot)
     photo = upload.photo_messages(file)
@@ -26,10 +30,10 @@ def messages_send(peer_id, lesson):
         with open(lesson['id'] + '.png', 'wb') as file:
             file.write(bytes.fromhex(lesson['top_image']))
         with open(lesson['id'] + '.png', 'rb') as file:
-            print(file.read())
+            print_with_title(file.read())
         sleep(4)
-        print(load_image(lesson['id'] + '.png'))
-        print(lesson.keys())
+        print_with_title(load_image(lesson['id'] + '.png'))
+        print_with_title(lesson.keys())
         vk_bot.messages.send(peer_id=peer_id,
                              message=lesson['title'] + "\n" + "\n" + lesson[
                                  'text'] + "\n" + t + "\n" + f"http://{localhost}/lesson/{lesson['id']}",
@@ -45,10 +49,10 @@ def messages_send(peer_id, lesson):
 def answer_mess(event):
     if event.type == VkEventType.MESSAGE_NEW and event.to_me:
         response = vk_bot.users.get(user_id=event.user_id)
-        print(response)
+        print_with_title(response)
         if response[0]['id'] not in users.keys():
             vk_bot.messages.send(peer_id=event.peer_id,
-                                 message=f"Test!!! Привет {response[0]['first_name']}! Я чат бот для сайта http://weblearn-project.herokuapp.com/weblearn",
+                                 message=f"Привет {response[0]['first_name']}! Я чат бот для сайта http://weblearn-project.herokuapp.com/weblearn",
                                  random_id=random.randint(0, 100), attachment=load_image("static/img/hi.png"))
             sleep(2)
             vk_bot.messages.send(peer_id=event.peer_id,
@@ -61,28 +65,28 @@ def answer_mess(event):
                                  random_id=random.randint(0, 100), attachment=load_image("static/img/hi.png"))
             sleep(2)
         users[response[0]['id']] = datetime.datetime.now()
-        mes = event.c.lower()
-        print(event.user_id, mes)
+        mes = event.text.lower()
+        print_with_title(event.user_id, mes)
         res = process.extractOne(" ".join(mes.split()), [i for i in command if len(mes) >= len(i)])
-        print(res)
+        print_with_title(res)
         if res is not None and res[1] >= 90:
             if res[0] in command[3:5]:
                 vk_bot.messages.send(peer_id=event.peer_id,
                                      message="У меня есть следующие функции:\n" + "\n".join(command_out),
                                      random_id=random.randint(0, 100))
             elif res[0] in command[5:9]:
-                print(datetime.datetime.now().strftime('%d-%B-%y %H:%M:S %A'))
+                print_with_title(datetime.datetime.now().strftime('%d-%B-%y %H:%M:S %A'))
                 vk_bot.messages.send(peer_id=event.peer_id,
                                      message=f"Сейчас: {datetime.datetime.now().strftime('%d-%B-%y %H:%M:%S %A')}",
                                      random_id=random.randint(0, 100))
             elif res[0] in command[:3]:
-                print(1)
+                print_with_title(1)
                 if res[0] == command[0]:
                     try:
-                        print(f'http://{localhost}/api/v1/lesson/{int(mes.split()[-1])}/j')
+                        print_with_title(f'http://{localhost}/api/v1/lesson/{int(mes.split()[-1])}/j')
                         s = get(f'http://{localhost}/api/v1/lesson/{int(mes.split()[-1])}/j').json()
                     except ValueError:
-                        print(f'http://{localhost}/api/v1/lesson/0/{"-".join(mes.split()[2:])}')
+                        print_with_title(f'http://{localhost}/api/v1/lesson/0/{"-".join(mes.split()[2:])}')
                         s = get(f'http://{localhost}/api/v1/lesson/0/{"-".join(mes.split()[2:])}').json()
                 else:
                     s = get(f'http://{localhost}/api/v1/lessons').json()
@@ -95,10 +99,10 @@ def answer_mess(event):
                     id = random.choice(l)
                     s = s['lessons'][id]
                     s['id'] = id
-                    print(s['title'])
+                    print_with_title(s['title'])
                     messages_send(event.peer_id, s)
                 except KeyError as e:
-                    print("!!!", e)
+                    print_with_title("!!!", e)
                     if res[0] == command[0]:
                         vk_bot.messages.send(peer_id=event.peer_id, message="Такой урок не найден",
                                              random_id=random.randint(0, 100))
@@ -113,7 +117,7 @@ localhost = "weblearn-project.herokuapp.com"
 
 def main(WEBLEARN_TOKEN):
     if WEBLEARN_TOKEN is None:
-        print("Нет токена")
+        print_with_title("Нет токена")
         return "Нет токена"
     global vk_session_bot, vk_bot, longpoll, command, command_out, users
     vk_session_bot = vk_api.VkApi(token=WEBLEARN_TOKEN)

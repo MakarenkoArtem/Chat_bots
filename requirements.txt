@@ -5,4 +5,3 @@ sqlalchemy
 flask_login
 sqlalchemy_serializer
 psycopg2
-threading

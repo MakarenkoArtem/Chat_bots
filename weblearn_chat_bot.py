@@ -29,42 +29,43 @@ def messages_send(peer_id, lesson):
     try:
         with open(f"static/img/weblearn/{lesson['id']}.png", 'wb') as file:
             file.write(bytes.fromhex(lesson['top_image']))
-        #with open(f"static/img/weblearn/{lesson['id']}.png", 'rb') as file:
+        # with open(f"static/img/weblearn/{lesson['id']}.png", 'rb') as file:
         #    print_with_title(file.read())
-        sleep(4)
+        #sleep(4)
         print_with_title(load_image(f"static/img/weblearn/{lesson['id']}.png"))
         print_with_title(lesson.keys())
         vk_bot.messages.send(peer_id=peer_id,
                              message=lesson['title'] + "\n" + "\n" + lesson[
                                  'text'] + "\n" + t + "\n" + f"http://{localhost}/lesson/{lesson['id']}",
-                             random_id=random.randint(0, 100), attachment=load_image(f"static/img/weblearn/{lesson['id']}.png"))
+                             random_id=random.randint(0, 100),
+                             attachment=load_image(f"static/img/weblearn/{lesson['id']}.png"))
     except KeyError:
         vk_bot.messages.send(peer_id=peer_id,
                              message=lesson['title'] + "\n" + "\n" + lesson[
                                  'text'] + "\n" + t + "\n" + f"http://{localhost}/lesson/{lesson['id']}",
                              random_id=random.randint(0, 100))
-    print_with_title(listdir())
-    [remove(i) for i in listdir() if i.split(".")[0] == str(id) and i.split(".")[-1] == 'png']
+    print_with_title(listdir("static/img/weblearn"))
+    [remove("static/img/weblearn/" + i) for i in listdir("static/img/weblearn") if i.split(".")[0] == str(lesson['id']) and i.split(".")[-1] == 'png']
 
 
 def answer_mess(event):
     if event.type == VkEventType.MESSAGE_NEW and event.to_me:
         response = vk_bot.users.get(user_id=event.user_id)
-        print_with_title(response)
+        #print_with_title(response)
         if response[0]['id'] not in users.keys():
             vk_bot.messages.send(peer_id=event.peer_id,
                                  message=f"Привет {response[0]['first_name']}! Я чат бот для сайта http://weblearn-project.herokuapp.com/weblearn",
-                                 random_id=random.randint(0, 100), attachment=load_image("static/img/hi.png"))
-            sleep(2)
+                                 random_id=random.randint(0, 100),
+                                 attachment="photo-204142875_457239297_89b95b3fa5f8750e8e")  # load_image("static/img/hi.png"))
+            sleep(1)
             vk_bot.messages.send(peer_id=event.peer_id,
                                  message="У меня есть следующие функции:\n" + "\n".join(command_out),
                                  random_id=random.randint(0, 100))
-            sleep(2)
         elif datetime.datetime.now() - users[response[0]['id']] > datetime.timedelta(hours=2):
             vk_bot.messages.send(peer_id=event.peer_id,
                                  message=f"С возвращением {response[0]['first_name']}. Хочешь перейти на сайта http://weblearn-project.herokuapp.com/weblearn?",
-                                 random_id=random.randint(0, 100), attachment=load_image("static/img/hi.png"))
-            sleep(2)
+                                 random_id=random.randint(0, 100),
+                                 attachment="photo-204142875_457239297_89b95b3fa5f8750e8e")  # load_image("static/img/hi.png"))
         users[response[0]['id']] = datetime.datetime.now()
         mes = event.text.lower()
         print_with_title(event.user_id, mes)

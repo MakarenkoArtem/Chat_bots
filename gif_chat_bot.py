@@ -57,7 +57,7 @@ def load_gif(file, vk, db_session, text_en, text_ru=""):
     return saved_gif
 
 
-def random_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, time=datetime.timedelta(seconds=45)):
+def random_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, time=datetime.timedelta(seconds=45)):
     try:
         count = int(text.split()[-1])
     except ValueError:
@@ -79,7 +79,7 @@ def random_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, 
         count -= 1
 
 
-def search_gif(params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, time=datetime.timedelta(seconds=45)):
+def search_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, text_ru, time=datetime.timedelta(seconds=45)):
     try:
         count = int(text.split()[-1])
     except ValueError:
@@ -137,10 +137,10 @@ def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
     if event.text[0] != ",":
         text_ru, text_en, lang = traslater(event.text.split(" _ ")[0])
         if len(event.text.split(" _ ")) > 1 and "random" in event.text.split(" _ ")[1].split():
-            random_gif(params={"api_key": GIF_TOKEN, "tag": event.text.split(" _ ")[0]}, text=event.text, vk_bot=vk_bot,
+            random_gif(event=event, params={"api_key": GIF_TOKEN, "tag": event.text.split(" _ ")[0]}, text=event.text, vk_bot=vk_bot,
                        db_session=db_session, chat_id=event.chat_id, text_en=text_en, text_ru=text_ru, vk=vk)
         else:
-            search_gif(params={"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "offset": random.randint(0, 10),
+            search_gif(event=event, params={"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "offset": random.randint(0, 10),
                                "lang": lang[:2]}, text=event.text, db_session=db_session, chat_id=event.chat_id,
                        text_en=text_en, text_ru=text_ru, vk=vk, vk_bot=vk_bot)
     print_with_title(3, event.text)

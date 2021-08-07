@@ -121,12 +121,12 @@ def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
         if datetime.datetime.now() - user.modified_date > datetime.timedelta(hours=2):
             vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
                                  message=f"С возвращением {response[0]['first_name']}",
-                                 attachment="https://vk.com/album-205470982_279908245?z=photo-205470982_457239024%2Falbum-205470982_279908245")
+                                 attachment="photo-204142875_457239297_89b95b3fa5f8750e8e")  # load_image("static/img/hi.png"))
         user.modified_date = datetime.datetime.now()
     except sqlalchemy.exc.NoResultFound:
         vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
                              message=f"Привет {response[0]['first_name']}. Я гиф чат бот",
-                             attachment="https://vk.com/album-205470982_279908245?z=photo-205470982_457239024%2Falbum-205470982_279908245")
+                             attachment="photo-204142875_457239297_89b95b3fa5f8750e8e")  # load_image("static/img/hi.png"))
         db_sess = db_session.create_session()
         user_db = User(id=int(response[0]['id']), token=GIF_TOKEN, first_name=response[0]['first_name'],
                        last_name=response[0]['last_name'])

@@ -6,6 +6,53 @@ while a:
     a = int(input())
 
 print(s)
+x, y = input().split("/")
+x, y = int(x), int(y)
+count = 5
+otstup_a = 1
+otstup_b = 1
+if len(str(x)) > len(str(y)):
+    otstup_b = len(str(x)) - len(str(y))
+while count and x:
+    s = " " * otstup_a + str(round(x / 1, count)).ljust(count + len(str(x)) + 1, "0")
+    if count == 5:
+        s += "|" + str(y)
+    print(" ".join(s))
+    s = " " * (otstup_a - 1) * 2 + "-".ljust((count + len(str(x)) + 2) * 2, " ")
+    if count == 5:
+        s += "|" + "-" * 2 * len(str(round(x / y, count)))
+    print(s)
+    #otstup_b += len(str(x//1)) - len(str(x // y * y))
+    #print(otstup_a, x, x // y * y, x * 10 ** otstup_a / 10 // (y * 10 ** otstup_a / 10) * y)
+    #print(x * 10 ** otstup_a / 10, x * 10 ** otstup_a / 10 // y)
+    print(x, otstup_a, x * 10 ** otstup_a / 10, (y * 10 ** otstup_a / 10))
+    print(x * 10 ** otstup_a / 10 // (y * 10 ** otstup_a / 10) * y)
+    s = " " * (otstup_b + 1) + str(x * 10 ** otstup_a / 10 // (y * 10 ** otstup_a / 10) * y).ljust(count + len(str(x)) - otstup_b + 1, " ")
+    if count == 5:
+        s += "|" + str(round(x / y, count))
+    print(" ".join(s))
+    s = " " * otstup_a + "-" * (count + len(str(x)) + 2) * 2
+    print(s)
+    #otstup_b += len(str(10 * x % y / 10//1)) - len(str(x//1))
+    count -= 1
+    x = 10 * x % y
+    #y = y / 10
+    #c += 1
+    otstup_a += 1
+    otstup_b += 1
+otstup_a -= 1
+s = " " * otstup_a + str(round(x / 1, count)).ljust(count + len(str(x)) + 1, "0")
+print(" ".join(s))
+'''c = len(str(x)) + len(str(x // y))
+print("- " + " " * c * 2 + "| " + "-" * 2 * len(str(round(x / y, count))))
+c += 1
+print("  " * c * 2 + "| " + " ".join(list(str(round(x / y, count)))))
+i = -1
+while i > y and i != -1 and count:
+    print(x // y * y)
+    count -= 1
+'''
+
 '''from requests import get
 import json
 

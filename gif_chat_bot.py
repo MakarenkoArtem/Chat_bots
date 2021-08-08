@@ -108,14 +108,11 @@ def search_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, te
 
 
 def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
-    print_with_title(event.text)
     db_sess = db_session.create_session()
     response = vk_bot.users.get(user_id=event.user_id)
-    print_with_title(response)
+    print_with_title(event.text, response)
     try:
-        print_with_title(event.user_id, response[0]['id'])
         user = db_sess.query(User).filter(User.id == event.user_id).one()
-        print_with_title(datetime.datetime.now() - user.modified_date)
         if datetime.datetime.now() - user.modified_date > datetime.timedelta(hours=2):
             vk_bot.messages.send(peer_id=event.peer_id, random_id=random.randint(0, 100),
                                  message=f"С возвращением {response[0]['first_name']}",

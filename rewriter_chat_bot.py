@@ -51,8 +51,8 @@ def main(vk, longpoll_my):
                     event.peer_id] < datetime.timedelta(minuts=30):
                     a = 0 / 1
                 people_send_audio[event.peer_id] = datetime.datetime.now()
-                vk.messages.send(peer_id=event.peer_id, message="",
-                                 attachment="https://vk.com/video-205470982_456239017",
+                vk.messages.send(peer_id=event.peer_id, message="https://vk.com/video-205470982_456239017",
+                                 attachment="",
                                  random_id=random.randint(0, 1000))
         except BaseException as e:
             pass  # print_with_title("!!!", e.__class__, e)

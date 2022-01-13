@@ -16,8 +16,9 @@ except ModuleNotFoundError:
 
 if 'HEROKU' in os.environ:
     TOKEN = os.environ.get("TOKEN", None)
-    VK_LOGIN = os.environ.get("VK_LOGIN", None)
-    VK_PASSWORD = os.environ.get("VK_PASSWORD", None)
+    TOKEN_USER = os.environ.get("TOKEN_USER", None)
+    #VK_LOGIN = os.environ.get("VK_LOGIN", None)
+    #VK_PASSWORD = os.environ.get("VK_PASSWORD", None)
     GIF_TOKEN = os.environ.get("GIF_TOKEN", None)
     WEBLEARN_TOKEN = os.environ.get("WEBLEARN_TOKEN", None)
 else:
@@ -35,7 +36,7 @@ def captcha_handler(captcha):
     # Пробуем снова отправить запрос с капчей
     return captcha.try_again(key)
 
-vk_session = vk_api.VkApi(VK_LOGIN, VK_PASSWORD, token=TOKEN_USER)#, app_id=2685278, captcha_handler=captcha_handler)
+vk_session = vk_api.VkApi(token=TOKEN_USER)#VK_LOGIN, VK_PASSWORD, , app_id=2685278, captcha_handler=captcha_handler)
 #vk_session.auth(token_only=True)
 vk = vk_session.get_api()
 longpoll_my = VkLongPoll(vk_session)

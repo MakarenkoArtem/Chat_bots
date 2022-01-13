@@ -36,7 +36,7 @@ def captcha_handler(captcha):
     # Пробуем снова отправить запрос с капчей
     return captcha.try_again(key)
 
-vk_session = vk_api.VkApi(token=TOKEN_USER)#VK_LOGIN, VK_PASSWORD, , app_id=2685278, captcha_handler=captcha_handler)
+vk_session = vk_api.VkApi(token=TOKEN_USER, captcha_handler=captcha_handler)#VK_LOGIN, VK_PASSWORD, , app_id=2685278)
 #vk_session.auth(token_only=True)
 vk = vk_session.get_api()
 longpoll_my = VkLongPoll(vk_session)

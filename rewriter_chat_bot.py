@@ -20,7 +20,7 @@ def print_with_title(vk, args):
 
 
 def rewrite(event, vk):
-    if event.text[0] == ",":
+    if len(event.text) and event.text[0] == ",":
         text = []
         k = get(
             f"https://speller.yandex.net/services/spellservice.json/checkText?text={'+'.join(event.text[1:].split())}").json()

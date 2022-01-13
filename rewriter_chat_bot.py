@@ -64,9 +64,11 @@ def main(vk, longpoll_my):
                 vk.messages.send(peer_id=event.peer_id, message="https://vk.com/video-205470982_456239017",
                                  attachment="",
                                  random_id=random.randint(0, 1000))
+        except KeyError:
+            pass
         except BaseException as e:
             print(e.__class__, e)
-            pass  # print_with_title("!!!", e.__class__, e)
+            # print_with_title("!!!", e.__class__, e)
         finally:
             if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (
                     event.type == VkEventType.MESSAGE_EDIT and (

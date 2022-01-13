@@ -6,7 +6,7 @@ import gif_chat_bot
 import weblearn_chat_bot
 import rewriter_chat_bot
 from data import db_session
-
+from requests import get, post
 try:
     from fuzzywuzzy import fuzz, process
 except ModuleNotFoundError:
@@ -35,9 +35,8 @@ def captcha_handler(captcha):
     # Пробуем снова отправить запрос с капчей
     return captcha.try_again(key)
 
-
-vk_session = vk_api.VkApi(VK_LOGIN, VK_PASSWORD, app_id=2685278, captcha_handler=captcha_handler)
-vk_session.auth(token_only=True)
+vk_session = vk_api.VkApi(VK_LOGIN, VK_PASSWORD, token=TOKEN_USER)#, app_id=2685278, captcha_handler=captcha_handler)
+#vk_session.auth(token_only=True)
 vk = vk_session.get_api()
 longpoll_my = VkLongPoll(vk_session)
 

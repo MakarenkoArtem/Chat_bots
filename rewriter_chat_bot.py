@@ -5,8 +5,18 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 import random
 
 
-def print_with_title(*args):
-    print("rewrite:", " ".join([str(i) for i in args]))
+def print_with_title(vk, args):
+    t, c = "", ""
+    '''try:
+        t = args.to_me()
+    except BaseException:
+        pass
+    try:
+        c = vk.users.get(user_id=args.user_id)[0]
+        c = f"{c['first_name']} {c['last_name']}"
+    except BaseException:
+        pass'''
+    print(f"rewrite: {c}", args.type.name, t, vars(args))  # " ".join([str(i) for i in list(vars(args))]))
 
 
 def rewrite(event, vk):
@@ -44,7 +54,7 @@ def main(vk, longpoll_my):
     me_in_chat, me = None, None
     for event in longpoll_my.listen():
         try:
-            # print_with_title(vars(event))
+            #print_with_title(vk, event)
             if '"type":"audio_message"' in event.attachments[
                 'attachments'] and event.type == VkEventType.MESSAGE_NEW and event.to_me and not event.from_chat:
                 if event.peer_id in people_send_audio.keys() and datetime.datetime.now() - people_send_audio[
@@ -55,6 +65,7 @@ def main(vk, longpoll_my):
                                  attachment="",
                                  random_id=random.randint(0, 1000))
         except BaseException as e:
+            print(e.__class__, e)
             pass  # print_with_title("!!!", e.__class__, e)
         finally:
             if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (

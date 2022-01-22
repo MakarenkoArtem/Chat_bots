@@ -71,7 +71,7 @@ def main(vk, longpoll_my):
             # print_with_title("!!!", e.__class__, e)
         finally:
             if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (
-                    event.type == VkEventType.MESSAGE_EDIT and (
+                    event.type == VkEventType.MESSAGE_EDIT and event.from_user and (
                     event.user_id == me or (event.from_chat and event.user_id == me_in_chat))):
                 t = Thread(target=rewrite, args=(event, vk,))
                 t.start()

@@ -7,6 +7,8 @@ import datetime
 import random
 from threading import Thread
 import vk_api
+from flask import jsonify
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkLongPoll, VkEventType
 
 
@@ -75,7 +77,7 @@ def random_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, te
             saved_gif = db_sess.query(Gif).filter(Gif.id == data["data"]['id']).one().link
         except sqlalchemy.exc.NoResultFound:
             saved_gif = load_gif(data["data"], vk, db_session, text_en, text_ru)
-        vk_bot.messages.send(chat_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
+        vk_bot.messages.send(chat_id=chat_id, message=saved_gif, random_id = random.randint(0, 1000))
         count -= 1
 
 
@@ -100,7 +102,33 @@ def search_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, te
                 saved_gif = db_sess.query(Gif).filter(Gif.id == gif['id']).one().link
             except sqlalchemy.exc.NoResultFound:
                 saved_gif = load_gif(gif, vk, db_session, text_en, text_ru)
-            vk_bot.messages.send(chat_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
+            try:
+                vk_bot.messages.send(chat_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
+            except vk_api.exceptions.ApiError:
+                """vk_bot.messages.send(peer_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
+                print('''{
+            "one_time": false,
+            "buttons": [
+                [{
+                    "action": {
+                        "type": "open_link",
+                        "label": "''' + text + '''",
+                        "label": "''' + saved_gif + '''"
+                    },
+                    "color": "positive"
+                }]]}''')
+                """
+                vk_bot.messages.send(peer_id=chat_id, message=saved_gif, keyboard='''{
+            "one_time": false,
+            "buttons": [
+                [{
+                    "action": {
+                        "type": "open_link",
+                        "payload": [],
+                        "label": "''' + text + '''",
+                        "link": "''' + saved_gif + '''"
+                    }
+                }]]}''', random_id=random.randint(0, 1000))
             count -= 1
             if not count:
                 return
@@ -137,9 +165,13 @@ def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
                        vk_bot=vk_bot,
                        db_session=db_session, chat_id=event.chat_id, text_en=text_en, text_ru=text_ru, vk=vk)
         else:
+            try:
+                id = event.chat_id
+            except AttributeError:
+                id = event.peer_id
             search_gif(event=event,
                        params={"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "offset": random.randint(0, 10),
-                               "lang": lang[:2]}, text=event.text, db_session=db_session, chat_id=event.chat_id,
+                               "lang": lang[:2]}, text=event.text, db_session=db_session, chat_id=id,
                        text_en=text_en, text_ru=text_ru, vk=vk, vk_bot=vk_bot)
 
 
@@ -147,13 +179,13 @@ def main(TOKEN, GIF_TOKEN, vk, db_session):
     vk_session_bot = vk_api.VkApi(token=TOKEN)
     vk_bot = vk_session_bot.get_api()
     longpoll = VkLongPoll(vk_session_bot, wait=1)
-    #print(2, vars(vk_session_bot))
+    # print(2, vars(vk_session_bot))
     for event in longpoll.listen():
-        #try:
+        # try:
         #    print(event.from_chat, event.to_me, not event.from_me, event.type, len(event.text))
-        #except BaseException as e:
+        # except BaseException as e:
         #    print(e.__class__)
-        if event.from_chat and event.to_me and not event.from_me and (
+        if (event.from_chat or event.from_user) and event.to_me and not event.from_me and (
                 event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(event.text):
             t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
             t.start()

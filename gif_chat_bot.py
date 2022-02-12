@@ -9,6 +9,7 @@ from threading import Thread
 import vk_api
 from flask import jsonify
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.longpoll import VkLongPoll, VkEventType
 
 
@@ -178,15 +179,22 @@ def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
 def main(TOKEN, GIF_TOKEN, vk, db_session):
     vk_session_bot = vk_api.VkApi(token=TOKEN)
     vk_bot = vk_session_bot.get_api()
-    longpoll = VkLongPoll(vk_session_bot, wait=1)
+    #longpoll = VkLongPoll(vk_session_bot, wait=1)
+    longpoll = VkBotLongPoll(vk_session_bot, 205470982, wait=1)
     # print(2, vars(vk_session_bot))
     for event in longpoll.listen():
+        print_with_title(event.obj)
+        print_with_title(event.from_user, not event.obj['out'],event.type, len(event.obj['text']))
         # try:
         #    print(event.from_chat, event.to_me, not event.from_me, event.type, len(event.text))
         # except BaseException as e:
         #    print(e.__class__)
-        if (event.from_chat or event.from_user) and event.to_me and not event.from_me and (
+        '''if (event.from_chat or event.from_user) and event.to_me and not event.from_me and (
                 event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(event.text):
             t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
-            t.start()
+            t.start()'''
             # t.join()
+        if event.from_user and not event.obj['out'] and (
+                event.type == VkBotEventType.MESSAGE_NEW or event.type == VkBotEventType.MESSAGE_EDIT) and len(event.text):
+            t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
+            t.start()

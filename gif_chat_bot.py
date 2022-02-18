@@ -137,7 +137,7 @@ def search_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, te
         params["limit"] = count
         i -= 1
 
-
+''' old
 def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
     db_sess = db_session.create_session()
     response = vk_bot.users.get(user_id=event.user_id)
@@ -174,6 +174,45 @@ def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
                        params={"api_key": GIF_TOKEN, "q": event.text, "limit": "3", "offset": random.randint(0, 10),
                                "lang": lang[:2]}, text=event.text, db_session=db_session, chat_id=id,
                        text_en=text_en, text_ru=text_ru, vk=vk, vk_bot=vk_bot)
+'''
+
+def new_mess(event, vk, vk_bot, db_session, GIF_TOKEN):
+    db_sess = db_session.create_session()
+    print_with_title(event.obj['from_id'])
+    response = vk_bot.users.get(user_id=event.obj['from_id'])
+    print_with_title(event.object['text'], response)
+    try:
+        user = db_sess.query(User).filter(User.id == event.obj['from_id']).one()
+        if datetime.datetime.now() - user.modified_date > datetime.timedelta(hours=2):
+            vk_bot.messages.send(peer_id=event.obj['peer_id'], random_id=random.randint(0, 100),
+                                 message=f"С возвращением {response[0]['first_name']}",
+                                 attachment="photo-204142875_457239297_89b95b3fa5f8750e8e")  # load_image("static/img/hi.png"))
+        user.modified_date = datetime.datetime.now()
+        db_sess.commit()
+    except sqlalchemy.exc.NoResultFound:
+        vk_bot.messages.send(peer_id=event.obj['peer_id'], random_id=random.randint(0, 100),
+                             message=f"Привет {response[0]['first_name']}. Я гиф чат бот",
+                             attachment="photo-204142875_457239297_89b95b3fa5f8750e8e")  # load_image("static/img/hi.png"))
+        db_sess = db_session.create_session()
+        user_db = User(id=int(response[0]['id']), token=GIF_TOKEN, first_name=response[0]['first_name'],
+                       last_name=response[0]['last_name'])
+        db_sess.add(user_db)
+        db_sess.commit()
+    if event.object['text'][0] != ",":
+        text_ru, text_en, lang = traslater(event.object['text'].split(" _ ")[0])
+        if len(event.object['text'].split(" _ ")) > 1 and "random" in event.object['text'].split(" _ ")[1].split():
+            random_gif(event=event, params={"api_key": GIF_TOKEN, "tag": event.object['text'].split(" _ ")[0]}, text=event.object['text'],
+                       vk_bot=vk_bot,
+                       db_session=db_session, chat_id=event.obj['chat_id'], text_en=text_en, text_ru=text_ru, vk=vk)
+        else:
+            try:
+                id = event.chat_id
+            except AttributeError:
+                id = event.peer_id
+            search_gif(event=event,
+                       params={"api_key": GIF_TOKEN, "q": event.object['text'], "limit": "3", "offset": random.randint(0, 10),
+                               "lang": lang[:2]}, text=event.object['text'], db_session=db_session, chat_id=id,
+                       text_en=text_en, text_ru=text_ru, vk=vk, vk_bot=vk_bot)
 
 
 def main(TOKEN, GIF_TOKEN, vk, db_session):
@@ -194,7 +233,7 @@ def main(TOKEN, GIF_TOKEN, vk, db_session):
             t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
             t.start()'''
             # t.join()
-        if event.from_user and not event.obj['out'] and (
-                event.type == VkBotEventType.MESSAGE_NEW or event.type == VkBotEventType.MESSAGE_EDIT) and len(event.text):
+        if event.from_chat and not event.obj['out'] and (
+                event.type == VkBotEventType.MESSAGE_NEW or event.type == VkBotEventType.MESSAGE_EDIT) and len(event.object['text']):
             t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
             t.start()

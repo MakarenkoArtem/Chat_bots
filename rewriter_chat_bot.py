@@ -51,14 +51,16 @@ def rewrite(event, vk):
 
 def main(vk, longpoll_my):
     people_send_audio = {}
+    white_list = [422445727]
     me_in_chat, me = None, None
     for event in longpoll_my.listen():
         try:
             # print_with_title(vk, event)
+            # print("white_list", event.peer_id, vk.users.get(user_id=event.peer_id))
             if '"type":"audio_message"' in event.attachments[
                 'attachments'] and event.type == VkEventType.MESSAGE_NEW and event.to_me and not event.from_chat:
                 if event.peer_id in people_send_audio.keys() and datetime.datetime.now() - people_send_audio[
-                    event.peer_id] < datetime.timedelta(minuts=30):
+                    event.peer_id] < datetime.timedelta(minuts=30) and (event.peer_id not in white_list or 75<random.randint(0, 100)):
                     a = 0 / 1
                 people_send_audio[event.peer_id] = datetime.datetime.now()
                 vk.messages.send(peer_id=event.peer_id, message="",

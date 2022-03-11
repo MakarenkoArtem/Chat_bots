@@ -51,7 +51,7 @@ def rewrite(event, vk):
 
 def main(vk, longpoll_my):
     people_send_audio = {}
-    white_list = [422445727]
+    white_list = [422445727, 385929442]
     me_in_chat, me = None, None
     for event in longpoll_my.listen():
         try:

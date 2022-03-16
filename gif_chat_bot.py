@@ -94,7 +94,7 @@ def search_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, te
         params["limit"] = str(count)
         data = get("http://api.giphy.com/v1/gifs/search", params=params).json()
         if data["meta"]["status"] == 429:
-            vk_bot.messages.send(chat_id=event.chat_id, random_id=random.randint(0, 1000),
+            vk_bot.messages.send(peer_id=event.obj['peer_id'], random_id=random.randint(0, 1000),
                                  message="Количество обращений к сайту превышено, поиск будет из сохраненных гифок")
             return
         for gif in data["data"]:
@@ -104,7 +104,7 @@ def search_gif(event, params, text, vk, vk_bot, chat_id, db_session, text_en, te
             except sqlalchemy.exc.NoResultFound:
                 saved_gif = load_gif(gif, vk, db_session, text_en, text_ru)
             try:
-                vk_bot.messages.send(chat_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
+                vk_bot.messages.send(peer_id=event.obj['peer_id'], message=saved_gif, random_id=random.randint(0, 1000))
             except vk_api.exceptions.ApiError:
                 """vk_bot.messages.send(peer_id=chat_id, message=saved_gif, random_id=random.randint(0, 1000))
                 print('''{
@@ -228,12 +228,12 @@ def main(TOKEN, GIF_TOKEN, vk, db_session):
         #    print(event.from_chat, event.to_me, not event.from_me, event.type, len(event.text))
         # except BaseException as e:
         #    print(e.__class__)
-        '''if (event.from_chat or event.from_user) and event.to_me and not event.from_me and (
-                event.type == VkEventType.MESSAGE_NEW or event.type == VkEventType.MESSAGE_EDIT) and len(event.text):
-            t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
-            t.start()'''
-            # t.join()
-        if event.from_chat and not event.obj['out'] and (
-                event.type == VkBotEventType.MESSAGE_NEW or event.type == VkBotEventType.MESSAGE_EDIT) and len(event.object['text']):
+        if (event.from_chat or event.from_user) and not event.from_group and (
+                event.type == VkBotEventType.MESSAGE_NEW or event.type == VkBotEventType.MESSAGE_EDIT) and len(event.obj.text):
             t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
             t.start()
+            # t.join()
+        '''if event.from_chat and not event.obj['out'] and (
+                event.type == VkBotEventType.MESSAGE_NEW or event.type == VkBotEventType.MESSAGE_EDIT) and len(event.object['text']):
+            t = Thread(target=new_mess, args=(event, vk, vk_bot, db_session, GIF_TOKEN))
+            t.start() '''

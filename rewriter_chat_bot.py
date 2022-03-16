@@ -63,9 +63,7 @@ def main(vk, longpoll_my):
                     event.peer_id] < datetime.timedelta(minuts=30) and (event.peer_id not in white_list or 75<random.randint(0, 100)):
                     a = 0 / 1
                 people_send_audio[event.peer_id] = datetime.datetime.now()
-                vk.messages.send(peer_id=event.peer_id, message="",
-                                 attachment="video-205470982_456239017",
-                                 random_id=random.randint(0, 1000))  # https://vk.com/video-205470982_456239017
+                #vk.messages.send(peer_id=event.peer_id, message="", attachment="video-205470982_456239017", random_id=random.randint(0, 1000))  # https://vk.com/video-205470982_456239017
         except KeyError:
             pass
         except BaseException as e:

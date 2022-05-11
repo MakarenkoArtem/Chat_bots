@@ -5,9 +5,9 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 import random
 
 
-def print_with_title(vk, args):
+def print_with_title_and_name(vk, args):
     t, c = "", ""
-    '''try:
+    try:
         t = args.to_me()
     except BaseException:
         pass
@@ -15,8 +15,13 @@ def print_with_title(vk, args):
         c = vk.users.get(user_id=args.user_id)[0]
         c = f"{c['first_name']} {c['last_name']}"
     except BaseException:
-        pass'''
+        pass
     print(f"rewrite: {c}", args.type.name, t, vars(args))  # " ".join([str(i) for i in list(vars(args))]))
+
+
+def print_with_title(text):
+    print(f"rewrite: {text}")  # " ".join([str(i) for i in list(vars(args))]))
+
 
 
 def rewrite(event, vk):
@@ -55,7 +60,7 @@ def main(vk, longpoll_my):
     me_in_chat, me = None, None
     for event in longpoll_my.listen():
         try:
-            # print_with_title(vk, event)
+            # print_with_title_and_name(vk, event)
             # print("white_list", event.peer_id, vk.users.get(user_id=event.peer_id))
             if '"type":"audio_message"' in event.attachments[
                 'attachments'] and event.type == VkEventType.MESSAGE_NEW and event.to_me and not event.from_chat:
@@ -64,13 +69,20 @@ def main(vk, longpoll_my):
                     a = 0 / 1
                 people_send_audio[event.peer_id] = datetime.datetime.now()
                 #vk.messages.send(peer_id=event.peer_id, message="", attachment="video-205470982_456239017", random_id=random.randint(0, 1000))  # https://vk.com/video-205470982_456239017
+
         except KeyError:
             pass
         except BaseException as e:
             print(e.__class__, e)
             # print_with_title("!!!", e.__class__, e)
         finally:
-            if (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (
+            if event.type == VkEventType.MESSAGE_NEW and event.from_me and event.from_user:
+                try:
+                    vk.messages.edit(peer_id=event.peer_id, message_id=event.message_id,
+                                     message='\n'.join([" * ".join(event.text.split(" * ")[:-1]) for _ in range(int(event.text.split(" * ")[-1]))]), random_id=random.randint(0, 1000))
+                except BaseException as e:
+                    print(e.__class__, e)
+            elif (event.type == VkEventType.MESSAGE_NEW and event.from_me) or (
                     event.type == VkEventType.MESSAGE_EDIT and event.from_user and (
                     event.user_id == me or (event.from_chat and event.user_id == me_in_chat))):
                 t = Thread(target=rewrite, args=(event, vk,))
